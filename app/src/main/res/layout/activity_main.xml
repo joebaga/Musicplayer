@@ -15,11 +15,18 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/greenlight"
+            android:background="@color/greenlight">
 
 
-
-            />
+            <ImageButton
+                android:id="@+id/menuBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/greenlight"
+                android:layout_marginStart="270dp"
+                android:contentDescription="TODO"
+                android:src="@drawable/ic_menu" />
+        </androidx.appcompat.widget.Toolbar>
 
 
         <LinearLayout

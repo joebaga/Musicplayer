@@ -11,7 +11,6 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.drawerlayout.widget.DrawerLayout
 import com.bumptech.glide.Glide
 import com.example.greening.databinding.ActivityMainBinding
 import java.util.concurrent.TimeUnit
@@ -20,8 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mp: MediaPlayer
-    private lateinit var drawerToggle: DrawerLayout
-    private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
     private var totalTime = 0
     private var currentSongIndex = 0
@@ -41,18 +39,27 @@ class MainActivity : AppCompatActivity() {
             Song("L-O-V-E", "Nat cole king", R.raw.nat, R.drawable.nat),
             Song("Lovely Day 3", "Bill Withers 3", R.raw.twoofus, R.drawable.lovelyday3),
             Song("stand by me", "Ben E. King", R.raw.byme, R.drawable.benking),
-            // Add more songs as needed
+            // Add more songs
         )
 
+        // Set up media player
         mp = MediaPlayer.create(this, songLibrary[currentSongIndex].resourceId)
 
-        drawerToggle = binding.drawerlayout
-        toggle = ActionBarDrawerToggle(this, drawerToggle, R.string.open, R.string.close)
-        binding.navView
+        // Set up drawer toggle
+        drawerToggle = ActionBarDrawerToggle(this, binding.drawerlayout, R.string.open, R.string.close)
+        binding.drawerlayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu)
 
         // Set up initial song
         setCurrentSong()
 
+        // Set up toolbar
+        setSupportActionBar(binding.toolbar)
+
+        // Set up play button click listener
         binding.play.setOnClickListener {
             if (mp.isPlaying) {
                 mp.pause()
@@ -62,8 +69,6 @@ class MainActivity : AppCompatActivity() {
                 binding.play.setImageResource(R.drawable.pause)
             }
         }
-
-        // Set up other button functionalities (download, volume, etc.) as needed
 
         // Set up volume control
         binding.volume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -82,9 +87,11 @@ class MainActivity : AppCompatActivity() {
         totalTime = mp.duration
         binding.position.max = totalTime
 
+        // Set up seekbars using custom Music class
         Music.setSeekbar(binding.volume, mp, true)
         Music.setSeekbar(binding.position, mp, null, true)
 
+        // Set up completion listener
         mp.setOnCompletionListener {
             // Reset position seekbar and played text when the song completes
             binding.position.progress = 0
@@ -93,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             playNextSong()
         }
 
+        // Set up position seekbar change listener
         binding.position.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -118,6 +126,8 @@ class MainActivity : AppCompatActivity() {
                 binding.remaining.text = "-$remainingTime"
             }
         }
+
+        // Background thread to update seekbar and text
         Thread(Runnable {
             while (true) {
                 try {
@@ -132,10 +142,7 @@ class MainActivity : AppCompatActivity() {
             }
         }).start()
 
-        drawerToggle.addDrawerListener(toggle)
-        toggle.syncState()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        // Set up navigation view item click listener
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.home -> Toast.makeText(this, "Clicked Home", Toast.LENGTH_SHORT).show()
@@ -204,9 +211,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
             return true
         }
+
+
+
         return super.onOptionsItemSelected(item)
     }
 }
+
+
